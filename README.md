@@ -1,25 +1,46 @@
-# System Design: Load Balancing Testbed
-This is an implementation of a testbed for validating and optimizing load balancing in a system architectural design.
+# Load-Balancing Testbed
 
-The testbed takes as input a system configuration represents as follows:
+A small Node.js testbed for routing requests across application servers and
+datastores. It supports Round Robin, Least Connections, and Consistent Hashing.
+The experiments explore capacity, backend failure recovery, and basic defences
+against abusive traffic. Tests run locally; they do not simulate production-scale
+traffic or network-level DDoS.
 
- ```yaml
- config = {
-        LoadBalancingAlgorithm: <value>,
-        NoServers: <value>,
-        Replicas: <value>,
-        MaxNoSessionsPerServer: <value>,
-        MinNoSessionsPerServer: <value>,
-        MaxProcessingTime: <value>, //seconds
-        MinProcessingTime: <value>, //seconds
-        NoDatastores: <value>,
-        MaxDatastoreSpace: <value>, //GB
-        MinDatastoreSpace: <value>, //MB
-        MaxSizeRequestPayload: <value>, //MB
-        MinSizeRequestPayload: <value>, //MB
-    }
+## Run
+
+Requirements: Node.js 18 or newer.
+
+```powershell
+npm install
+node MainTerminal.js
 ```
 
-The testbed evaluates three load-balancing algorithms. These are `Round Robin`, `Least Connections` and `Consistent Hashing`. Given an configuration instance, the aim is to verify the limits of the system in its ability to be highly-available, resilient and to withstand a denial of service attack. 
+Choose `Y` to start the load balancer. In a second terminal, run a workload:
 
-The effectiveness of a configuration is measured by the frequency of server denial of access either due to lack of servers to handle new sessions or not enough space in the datastore to handle user request payload.
+```powershell
+node RequestSimulation.js
+```
+
+Stop the server with `Ctrl+C`. To choose a repeatable Task A configuration,
+set `CONFIG_PRESET` before starting, for example:
+
+```powershell
+$env:CONFIG_PRESET = "fourServers"
+node MainTerminal.js
+```
+
+Available presets and experiment results are in [Task A configurations and
+results](./Configs%20effectivness.md).
+
+## More detail
+
+- [Task A configurations and results](./Configs%20effectivness.md)
+- [Task B fault tolerance, abuse defences, and results](./Task-B-Results.md)
+
+## Recorded results
+
+- **Task A baseline:** 186/320 requests succeeded (58.1%).
+- **Task B fault test:** 23/29 succeeded with failover off; 29/29 with failover
+  on during the tested backend outage.
+- **Task B traffic test:** 8/12 legitimate requests served with defences off;
+  9/12 with defences on. Defences rejected 9/14 simulated abusive requests.

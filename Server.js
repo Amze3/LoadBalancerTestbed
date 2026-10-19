@@ -5,10 +5,20 @@ export default class Server {
         this.maxSessions = maxSessions
         this.processTime = processTime
         this.sessions = []
+        this.available = true
 
         setInterval(() => {
             this.maintainSessions()
         }, 2000);
+    }
+
+    // ===== FAULT TOLERANCE: backend health state =====
+    isAvailable() {
+        return this.available
+    }
+
+    setAvailable(available) {
+        this.available = available
     }
 
     getSessions() {

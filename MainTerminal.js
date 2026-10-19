@@ -8,22 +8,102 @@ import Utils from './Util.js';
 var config = undefined
 const rl = readline.createInterface({ input, output });
 
-async function main() {
-
-    config = {
+// ===== TASK A: named presets for repeatable configuration comparisons =====
+const configPresets = {
+    baseline: {
+        LoadBalancingAlgorithm: Utils.AlgorithmStr[1],
+        NoServers: 4,
+        Replicas: 2,
+        MaxNoSessionsPerServer: 10,
+        MinNoSessionsPerServer: 5,
+        MaxProcessingTime: 300,
+        MinProcessingTime: 100,
+        NoDatastores: 2,
+        MaxDatastoreSpace: 3000,
+        MinDatastoreSpace: 2000,
+        MaxSizeRequestPayload: 20,
+        MinSizeRequestPayload: 1,
+    },
+    leastConnections: {
+        LoadBalancingAlgorithm: Utils.AlgorithmStr[2],
+        NoServers: 2,
+        Replicas: 2,
+        MaxNoSessionsPerServer: 10,
+        MinNoSessionsPerServer: 5,
+        MaxProcessingTime: 300,
+        MinProcessingTime: 100,
+        NoDatastores: 2,
+        MaxDatastoreSpace: 3000,
+        MinDatastoreSpace: 2000,
+        MaxSizeRequestPayload: 20,
+        MinSizeRequestPayload: 1,
+    },
+    consistentHashing: {
+        LoadBalancingAlgorithm: Utils.AlgorithmStr[3],
+        NoServers: 2,
+        Replicas: 2,
+        MaxNoSessionsPerServer: 10,
+        MinNoSessionsPerServer: 5,
+        MaxProcessingTime: 300,
+        MinProcessingTime: 100,
+        NoDatastores: 2,
+        MaxDatastoreSpace: 3000,
+        MinDatastoreSpace: 2000,
+        MaxSizeRequestPayload: 20,
+        MinSizeRequestPayload: 1,
+    },
+    fourServers: {
+        LoadBalancingAlgorithm: Utils.AlgorithmStr[1],
+        NoServers: 4,
+        Replicas: 2,
+        MaxNoSessionsPerServer: 10,
+        MinNoSessionsPerServer: 5,
+        MaxProcessingTime: 300,
+        MinProcessingTime: 100,
+        NoDatastores: 2,
+        MaxDatastoreSpace: 3000,
+        MinDatastoreSpace: 2000,
+        MaxSizeRequestPayload: 20,
+        MinSizeRequestPayload: 1,
+    },
+    moreSessions: {
         LoadBalancingAlgorithm: Utils.AlgorithmStr[1],
         NoServers: 2,
-        Replicas: 3,
-        MaxNoSessionsPerServer: 10,
-        MinNoSessionsPerServer: 1,
-        MaxProcessingTime: 30000, //30 seconds
-        MinProcessingTime: 2000, //2 seconds
+        Replicas: 2,
+        MaxNoSessionsPerServer: 20,
+        MinNoSessionsPerServer: 10,
+        MaxProcessingTime: 300,
+        MinProcessingTime: 100,
         NoDatastores: 2,
-        MaxDatastoreSpace: 1000000, //1GB
-        MinDatastoreSpace: 100000, //100MB
-        MaxSizeRequestPayload: 100000, //100MB
-        MinSizeRequestPayload: 1000, //1MB
+        MaxDatastoreSpace: 3000,
+        MinDatastoreSpace: 2000,
+        MaxSizeRequestPayload: 20,
+        MinSizeRequestPayload: 1,
+    },
+    fourDatastores: {
+        LoadBalancingAlgorithm: Utils.AlgorithmStr[1],
+        NoServers: 2,
+        Replicas: 2,
+        MaxNoSessionsPerServer: 10,
+        MinNoSessionsPerServer: 5,
+        MaxProcessingTime: 300,
+        MinProcessingTime: 100,
+        NoDatastores: 4,
+        MaxDatastoreSpace: 3000,
+        MinDatastoreSpace: 2000,
+        MaxSizeRequestPayload: 20,
+        MinSizeRequestPayload: 1,
     }
+};
+
+async function main() {
+
+    const presetName = process.env.CONFIG_PRESET || "baseline";
+    if (!Object.hasOwn(configPresets, presetName)) {
+        throw new Error(`Unknown CONFIG_PRESET "${presetName}". Choose: ${Object.keys(configPresets).join(", ")}`);
+    }
+    config = { ...configPresets[presetName] };
+    console.log(`Configuration preset: ${presetName}`);
 
     prompt()
     async function prompt() {
